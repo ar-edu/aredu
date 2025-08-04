@@ -133,6 +133,19 @@ public class ARTemplateMenuManager : MonoBehaviour
     }
 
     [SerializeField]
+    [Tooltip("The slider for switching between plane and marker detection.")]
+    DebugSlider m_MarkerPlaneSwitchSlider;
+
+    /// <summary>
+    /// The slider for switching between marker and plane detection.
+    /// </summary>
+    public DebugSlider debugMarkerPlaneSwitchSlider
+    {
+        get => m_MarkerPlaneSwitchSlider;
+        set => m_MarkerPlaneSwitchSlider = value;
+    }
+
+    [SerializeField]
     [Tooltip("The plane prefab with shadows and debug visuals.")]
     GameObject m_DebugPlane;
 
@@ -156,6 +169,19 @@ public class ARTemplateMenuManager : MonoBehaviour
     {
         get => m_PlaneManager;
         set => m_PlaneManager = value;
+    }
+
+    [SerializeField]
+    [Tooltip("The tracked image manager in the AR demo scene.")]
+    ARTrackedImageManager m_TrackedImageManager;
+
+    /// <summary>
+    /// The tracked image manager in the AR demo scene.
+    /// </summary>
+    public ARTrackedImageManager trackedImageManager
+    {
+        get => m_TrackedImageManager;
+        set => m_TrackedImageManager = value;
     }
 
     [SerializeField]
@@ -254,6 +280,7 @@ public class ARTemplateMenuManager : MonoBehaviour
         InitializeDebugMenuOffsets();
         HideMenu();
         m_PlaneManager.planePrefab = m_DebugPlane;
+        m_MarkerPlaneSwitchSlider.value = 0;
     }
 
     /// <summary>
@@ -372,6 +399,35 @@ public class ARTemplateMenuManager : MonoBehaviour
             ChangePlaneVisibility(true);
         }
     }
+
+    /// <summary>
+    /// Switches between marker and plane detection.
+    /// </summary>
+    public void SwitchMarkerPlaneDetection()
+    {
+
+        if (m_MarkerPlaneSwitchSlider.value == 1)
+        {
+            m_MarkerPlaneSwitchSlider.value = 0;
+            m_TrackedImageManager.enabled = false;
+            m_PlaneManager.enabled = true;
+            //m_CreateButton.enabled = false; // TRYING TO REMOVE OBJECT MENU BUTTON IN MARKER MODE
+            foreach (var tracked in m_TrackedImageManager.trackables)
+                tracked.gameObject.SetActive(false);
+            ClearAllObjects();
+        }
+        else
+        {
+            m_MarkerPlaneSwitchSlider.value = 1;
+            m_TrackedImageManager.enabled = true;
+            m_PlaneManager.enabled = false;
+            //m_CreateButton.enabled = true; // TRYING TO REMOVE OBJECT MENU BUTTON IN MARKER MODE
+            foreach (var plane in planeManager.trackables)
+                plane.gameObject.SetActive(false);
+            ClearAllObjects();
+        }
+    }
+
 
     /// <summary>
     /// Shows or hides the AR debug menu.
